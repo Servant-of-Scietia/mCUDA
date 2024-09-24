@@ -3,7 +3,8 @@ project(untitled CUDA)
 
 set(CMAKE_CUDA_STANDARD 20)
 
-add_executable(untitled main.cu)
+add_executable(untitled add.cu
+        test.cu)
 
 set_target_properties(untitled PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON)
