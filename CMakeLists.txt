@@ -3,18 +3,27 @@ project(untitled LANGUAGES CXX CUDA)
 
 set(CMAKE_CUDA_STANDARD 11)
 
-# Specify the path to CUDA if necessary
+# Specify the path to CUDA
 set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda)
-set(CUDNN_FRONTEND_LIBRARY /usr/local/cudnn-frontend)
+
+# Specify the path to cuDNN
 set(CUDNN_LIBRARY /usr/include)
 
 # Add include directories
 include_directories(${CUDA_TOOLKIT_ROOT_DIR}/include)
 include_directories(${CUDNN_LIBRARY})
-include_directories(${CUDNN_FRONTEND_LIBRARY}/include)
+
+# include cudnn-frontend
+add_subdirectory(cudnn-frontend)
 
 # Add executable
-add_executable(untitled main.cpp)
+add_executable(main main.cpp)
+add_executable(main2 main2.cpp)
 
 # Link CUDA runtime libraries
-target_link_libraries(untitled ${CUDA_LIBRARIES} ${CUDNN_FRONTEND_LIBRARY} cudnn)
+target_link_libraries(main ${CUDA_LIBRARIES} cudnn_frontend cudnn)
+target_link_libraries(main2 ${CUDA_LIBRARIES} cudnn_frontend cudnn)
+
+target_precompile_headers(main PRIVATE pch.h)
+target_precompile_headers(main2 PRIVATE pch.h)
+
