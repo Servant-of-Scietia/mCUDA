@@ -17,21 +17,12 @@
     }                                                                                \
 }
 
-#define checkFeErrors(status)                                                         \
-{                                                                                    \
-    if (status.is_bad())                                              \
-    {                                                                                \
-        std::cerr << "cuDNN error: " << status.get_message() << std::endl;    \
-        exit(1);                                                                     \
-    }                                                                                \
-}
-
 template <typename Type>
 class Tensor
 {
     Type* devPtr;
     Type* hostPtr;
-    std::int64_t size;
+    std::uint64_t size;
 
 public:
     explicit Tensor(const std::uint64_t size) : size(size)

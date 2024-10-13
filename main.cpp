@@ -9,9 +9,9 @@ int main() {
 
     // matmul problem size
     int64_t const b = 1;
-    int64_t const m = 100;
-    int64_t const n = 1;
-    int64_t const k = 784;
+    int64_t const m = 10;
+    int64_t const n = 10;
+    int64_t const k = 10;
 
     // Make cudnn graph
     fe::graph::Graph graph{};
@@ -55,25 +55,20 @@ int main() {
     C_after_add->set_output(true).set_data_type(cudnn_frontend::DataType_t::FLOAT);
 
 
-    bool good = graph.validate().is_good();
-    std::cout << "Graph validation: " << (good ? "good" : "bad") << std::endl;
-    std::cout << graph.print() << std::endl;
+    checkFeErrors(graph.validate());
 
     cudnnHandle_t handle;
     if(cudnnCreate(&handle))
         std::cout << "Failed to create cuDNN handle" << std::endl;
 
-    good = graph.build_operation_graph(handle).is_good();
-    std::cout << "Operation graph build: " << (good ? "good" : "bad") << std::endl;
+    checkFeErrors(graph.build_operation_graph(handle));
 
-    good = graph.create_execution_plans({fe::HeurMode_t::A}).is_good();
-    std::cout << "Execution plan creation: " << (good ? "good" : "bad") << std::endl;
+    checkFeErrors(graph.create_execution_plans({fe::HeurMode_t::A, fe::HeurMode_t::B, fe::HeurMode_t::FALLBACK}));
+    std::cout << graph.get_execution_plan_count() << std::endl;
 
-    good = graph.check_support(handle).is_good();
-    std::cout << "Check support: " << (good ? "good" : "bad") << std::endl;
+    checkFeErrors(graph.check_support(handle));
 
-    good = graph.build_plans(handle, fe::BuildPlanPolicy_t::HEURISTICS_CHOICE).is_good();
-    std::cout << "Build plans: " << (good ? "good" : "bad") << std::endl;
+    checkFeErrors(graph.build_plans(handle, fe::BuildPlanPolicy_t::HEURISTICS_CHOICE));
 
     // Run cudnn graph
     Tensor<float> A_gpu(b * m * k);
@@ -82,9 +77,7 @@ int main() {
     Tensor<float> Bias_gpu(b * m * n);
 
     int64_t workspace_size;
-    good = graph.get_workspace_size(workspace_size).is_good();
-    std::cout << "Get workspace size: " << (good ? "good" : "bad") << std::endl;
-    std::cout << "Workspace size: " << workspace_size << std::endl;
+    checkFeErrors(graph.get_workspace_size(workspace_size));
 
     Tensor<std::byte> workspace(workspace_size);
     //
@@ -92,8 +85,7 @@ int main() {
         {A, A_gpu.getDevPtr()}, {B, B_gpu.getDevPtr()}, {C_after_add, C_gpu.getDevPtr()}, {Bias, Bias_gpu.getDevPtr()}};
 
     std::cout << graph.print() << std::endl;
-    good = graph.execute(handle, variant_pack, workspace.getDevPtr()).is_good();
-    std::cout << "Execution: " << (good ? "good" : "bad") << std::endl;
+    checkFeErrors(graph.execute(handle, variant_pack, workspace.getDevPtr()));
     cudnnDestroy(handle);
 
     return 0;

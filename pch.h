@@ -5,7 +5,6 @@
 #ifndef PCH_H
 #define PCH_H
 
-#include <cudnn_frontend.h>
 #include <cudnn.h>
 #include <iostream>
 #include <cuda_runtime.h>
