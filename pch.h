@@ -12,5 +12,6 @@
 #include <iostream>
 #include <numeric>
 #include <vector>
+#include <cuda.h>
 
 #endif //PCH_H

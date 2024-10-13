@@ -45,17 +45,17 @@ int main() {
 
     // Create Bias vector
     auto Bias_attributes =
-        fe::graph::Tensor_attributes().set_name("Bias").set_dim({b, m, n}).set_stride({m*n, n, 1}).set_data_type(
+        fe::graph::Tensor_attributes().set_name("B").set_dim({b, m, n}).set_stride({m*n, n, 1}).set_data_type(
             fe::DataType_t::FLOAT);
     auto Bias = graph.tensor(Bias_attributes);
 
     // Add ADD operation
     auto pw_0_attributes = fe::graph::Pointwise_attributes()
-                               .set_name("pw0_Add")
                                .set_mode(fe::PointwiseMode_t::ADD)
-                               .set_compute_data_type(fe::DataType_t::FLOAT);
+                               .set_compute_data_type(fe::DataType_t::FLOAT)
+                                .set_name("p");
     auto A_after_pw_0 = graph.pointwise(A, Bias, pw_0_attributes);
-    A_after_pw_0->set_output(true).set_data_type(fe::DataType_t::FLOAT);
+    A_after_pw_0->set_data_type(fe::DataType_t::FLOAT);
 
 
     graph.validate();
